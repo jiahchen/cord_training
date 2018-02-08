@@ -27,10 +27,8 @@ imports:
    - custom_types/network.yaml
    - custom_types/onosservice.yaml
    - custom_types/networkslice.yaml
-   - custom_types/viperfserservice.yaml
-   - custom_types/viperfserserviceinstance.yaml
-   - custom_types/viperfcliservice.yaml
-   - custom_types/viperfcliserviceinstance.yaml
+   - custom_types/vipsservice.yaml
+   - custom_types/vipcservice.yaml
 
 topology_template:
   node_templates:
@@ -106,27 +104,14 @@ topology_template:
     service#viperfser:
       type: tosca.nodes.VIPSService
       properties:
-        name: viperfserService
+        name: VIPSService
         view_url: /admin/viperfser/viperfser/$id$/
         kind: viperfser
         public_key: {{ lookup('file', config_cord_profile_dir + '/key_import/mcord_rsa.pub') }}
-        private_key_fn: /opt/xos/services/vmme/keys/mcord_rsa
+        private_key_fn: /opt/xos/services/viperfser/keys/mcord_rsa
       artifacts:
         pubkey: /opt/cord_profile/key_import/mcord_rsa.pub
 
-# IPERF Client Service
-    service#viperfcli:
-      type: tosca.nodes.VIPCService
-      properties:
-        name: VIPCService
-        view_url: /admin/viperfcli/viperfcli/$id$/
-        kind: viperfcli
-        public_key: {{ lookup('file', config_cord_profile_dir + '/key_import/mcord_rsa.pub') }}
-        private_key_fn: /opt/xos/services/oaispgw/keys/mcord_rsa
-      artifacts:
-        pubkey: /opt/cord_profile/key_import/mcord_rsa.pub
-
-# OAI HSS Service slice, temporily use trusty as default image
     {{ site_name }}_viperfser:
       description: vIperfServer Service Slice
       type: tosca.nodes.Slice
@@ -139,7 +124,7 @@ topology_template:
               node: {{ site_name }}
               relationship: tosca.relationships.BelongsToOne
           - service:
-              node: service#viperser
+              node: service#viperfser
               relationship: tosca.relationships.BelongsToOne
           - default_image:
               node: image-iperf
@@ -148,7 +133,18 @@ topology_template:
               node: m1.large
               relationship: tosca.relationships.BelongsToOne
 
-# OAI SPGW Service slice, temporily use trusty as default image
+# IPERF Client Service
+    service#viperfcli:
+      type: tosca.nodes.VIPCService
+      properties:
+        name: VIPCService
+        view_url: /admin/viperfcli/viperfcli/$id$/
+        kind: viperfcli
+        public_key: {{ lookup('file', config_cord_profile_dir + '/key_import/mcord_rsa.pub') }}
+        private_key_fn: /opt/xos/services/viperfcli/keys/mcord_rsa
+      artifacts:
+        pubkey: /opt/cord_profile/key_import/mcord_rsa.pub
+
     {{ site_name }}_viperfcli:
       description: vIperfClient Service Slice
       type: tosca.nodes.Slice
